@@ -11,6 +11,6 @@ configMapGenerator:
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 images:
-- name: controller
-  newName: sbo
-  newTag: latest
+- digest: sha256:538830f54882013ff62a786c85794c3141caf73422d36759ee772d747edb6cd4
+  name: controller
+  newName: quay.io/myeung/servicebinding-operator

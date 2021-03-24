@@ -2,12 +2,12 @@ PROJECT_DIR := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
 include hack/common.mk
 
 # Current Operator version
-VERSION ?= 0.5.0
+VERSION ?= 0.6.0
 
 GIT_COMMIT_ID ?= $(shell git rev-parse --short=8 HEAD)
 
 OPERATOR_REGISTRY ?= quay.io
-OPERATOR_REPO_REF ?= $(OPERATOR_REGISTRY)/redhat-developer/servicebinding-operator
+OPERATOR_REPO_REF ?= $(OPERATOR_REGISTRY)/myeung/servicebinding-operator
 OPERATOR_IMAGE_REF ?= $(OPERATOR_REPO_REF):$(GIT_COMMIT_ID)
 OPERATOR_IMAGE_SHA_REF ?= $(shell $(CONTAINER_RUNTIME) inspect --format='{{index .RepoDigests 0}}' $(OPERATOR_IMAGE_REF))
 OPERATOR_BUNDLE_IMAGE_REF ?= $(OPERATOR_REPO_REF):bundle-$(VERSION)-$(GIT_COMMIT_ID)
@@ -234,7 +234,7 @@ image:
 
 .PHONY: push-image
 # push operator image to registry
-push-image: image registry-login
+push-image: image
 	$(CONTAINER_RUNTIME) push "$(OPERATOR_IMAGE_REF)"
 
 .PHONY: bundle-image
@@ -243,7 +243,7 @@ bundle-image: bundle
 	$(CONTAINER_RUNTIME) build -f bundle.Dockerfile -t $(OPERATOR_BUNDLE_IMAGE_REF) .
 
 .PHONY: push-bundle-image
-push-bundle-image: bundle-image registry-login
+push-bundle-image: bundle-image
 	$(Q)$(CONTAINER_RUNTIME) push $(OPERATOR_BUNDLE_IMAGE_REF)
 	$(Q)operator-sdk bundle validate --select-optional name=operatorhub -b $(CONTAINER_RUNTIME) $(OPERATOR_BUNDLE_IMAGE_REF)
 
@@ -253,7 +253,7 @@ index-image: push-bundle-image
 
 .PHONY: push-index-image
 # push index image
-push-index-image: index-image registry-login
+push-index-image: index-image
 	$(Q)$(CONTAINER_RUNTIME) push $(OPERATOR_INDEX_IMAGE_REF)
 
 .PHONY: release-operator
