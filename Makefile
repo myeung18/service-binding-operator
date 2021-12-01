@@ -7,7 +7,7 @@ VERSION ?= 0.10.0
 GIT_COMMIT_ID ?= $(shell git rev-parse --short=8 HEAD)
 
 OPERATOR_REGISTRY ?= quay.io
-OPERATOR_REPO_REF ?= $(OPERATOR_REGISTRY)/redhat-developer/servicebinding-operator
+OPERATOR_REPO_REF ?= $(OPERATOR_REGISTRY)/myeung/servicebinding-operator
 OPERATOR_IMAGE_REF ?= $(OPERATOR_REPO_REF):$(GIT_COMMIT_ID)
 OPERATOR_IMAGE_SHA_REF ?= $(shell $(CONTAINER_RUNTIME) inspect --format='{{index .RepoDigests 0}}' $(OPERATOR_IMAGE_REF) | cut -f 2 -d '@')
 OPERATOR_BUNDLE_IMAGE_REF ?= $(OPERATOR_REPO_REF):bundle-$(VERSION)-$(GIT_COMMIT_ID)
@@ -36,7 +36,7 @@ PYTHON_VENV_DIR=$(OUTPUT_DIR)/venv3
 
 CONTAINER_RUNTIME ?= docker
 
-QUAY_USERNAME ?= redhat-developer+travis
+QUAY_USERNAME ?= myeung
 REGISTRY_USERNAME ?= $(QUAY_USERNAME)
 QUAY_TOKEN ?= ""
 REGISTRY_PASSWORD ?= $(QUAY_TOKEN)
@@ -252,7 +252,7 @@ bundle-image: bundle
 	$(CONTAINER_RUNTIME) build -f bundle.Dockerfile -t $(OPERATOR_BUNDLE_IMAGE_REF) .
 
 .PHONY: push-bundle-image
-push-bundle-image: bundle-image registry-login
+push-bundle-image: bundle-image
 	$(Q)$(CONTAINER_RUNTIME) push $(OPERATOR_BUNDLE_IMAGE_REF)
 	$(Q)operator-sdk bundle validate --select-optional name=operatorhub -b $(CONTAINER_RUNTIME) $(OPERATOR_BUNDLE_IMAGE_REF)
 
